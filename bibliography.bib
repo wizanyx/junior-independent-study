@@ -1,14 +1,16 @@
-% Here is an example of how to create a bibliography entry for an article using
-% BibTeX. Generally you won't have to write these out yourself, because they are
-% provided by most web sites that allow you to export citations. The string
-% "clrsAlgorithms" is a citation key, and if you were citing the source in a
-% document you would use \cite{clrsAlgorithms}.
-@book{clrsAlgorithms,
-author = {Cormen, Thomas H. and Leiserson, Charles E. and Rivest, Ronald L. and Stein, Clifford},
-title = {Introduction to Algorithms, Third Edition},
-year = {2009},
-isbn = {0262033844},
-publisher = {The MIT Press},
-edition = {3rd},
-annote  = {This is a popular algorithms textbook which is well-cited. In particular, Part VI on graph algorithms will be of interest. Chapter 26 discusses flow networks and introduces commonly used notation. It formally describes the problem of obtaining a maximum flow and its equivalence to obtaining a minimum cut. The classical method of Ford and Fulkerson's algorithm for finding a maximum flow is described, and it includes several examples. Additional methods for obtaining a maximum flow, including the push-relabel method, are also described. The chapter notes include additional references to specific articles which may be helpful, such as those of historical interest (the article in which an algorithm was originally proposed) as well as state-of-the-art improvements (more recent articles to improve the approach).}
+@inproceedings{10.3115/1118693.1118704,
+  author    = {Pang, Bo and Lee, Lillian and Vaithyanathan, Shivakumar},
+  title     = {Thumbs up? Sentiment Classification using Machine Learning Techniques},
+  year      = {2002},
+  publisher = {Association for Computational Linguistics},
+  address   = {USA},
+  url       = {https://doi.org/10.3115/1118693.1118704},
+  urldate   = {2025-09-04},
+  doi       = {10.3115/1118693.1118704},
+  abstract  = {We consider the problem of classifying documents not by topic, but by overall sentiment, e.g., determining whether a review is positive or negative. Using movie reviews as data, we find that standard machine learning techniques definitively outperform human-produced baselines. However, the three machine learning methods we employed (Naive Bayes, maximum entropy classification, and support vector machines) do not perform as well on sentiment classification as on traditional topic-based categorization. We conclude by examining factors that make the sentiment classification problem more challenging.},
+  booktitle = {Proceedings of the ACL-02 Conference on Empirical Methods in Natural Language Processing - Volume 10},
+  pages     = {79-86},
+  numpages  = {8},
+  series    = {EMNLP '02},
+  annote    = {Pang, Lee, and Vaithyanathan (2002) investigate sentiment classification, aiming to categorize documents by overall opinion rather than topic. Using a large dataset of movie reviews, they compare Naive Bayes, maximum entropy, and support vector machines, finding that these algorithms significantly outperform human-selected word lists but still achieve lower accuracy than in topic-based classification. The paper highlights challenges unique to sentiment analysis, including subtle language cues, rhetorical contrasts, and the need for contextual understanding (e.g., negation). Published in the \textit{Proceedings of EMNLP} and widely cited, the work is highly credible and foundational to sentiment analysis research. While the paper's models may seem simple by today's standards, they illustrate enduring concepts such as feature representation (bag-of-words, unigrams vs. bigrams) and classification tradeoffs. As a cornerstone in the field, this source highlights the early challenges of sentiment analysis and sets the stage for evaluating modern neural and transformer-based approaches.}
 }
