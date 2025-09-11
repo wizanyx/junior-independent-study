@@ -78,12 +78,29 @@ economic phenomenon.
 
 \newpage
 \section*{Appendix}
-A concise list of features / user stories in the order in which they will be built. A few examples are below to demonstrate the expected scope and level of granularity; you will have more features than this.
+A concise list of features / user stories in the order in which they will be built.
+
 \begin{itemize}
-	\item Default picture display on web application.
-	\item On a button-click, user can separate the image into foreground and background.
-	\item User can select a picture from their desktop.
-	\item Selected picture displays on the web application.
+    \item Initialize project repository and environment (backend with Flask, frontend with React).
+    \item Configure environment variables and secrets for API keys and rate limits.
+    \item Define a common document schema to be used across adapters and APIs.
+    \item Implement paste-text analysis endpoint in the backend.
+    \item Implement CSV upload analysis endpoint in the backend.
+    \item Create news ingestion adapter for pulling recent financial headlines.
+    \item Create Reddit/StockTwits ingestion adapter for ticker-specific posts.
+    \item Build preprocessing pipeline for text cleaning, deduplication, and ticker mapping.
+    \item Integrate FinBERT model for sentiment inference.
+    \item Implement aggregation module to compute metrics (mean sentiment, \% positive, volume, neg/pos ratio).
+    \item Add explainability endpoint for token-level highlights of sentiment predictions.
+    \item Develop REST API endpoints for metrics, posts, explanations, and system health.
+    \item Build core React dashboard with ticker input, source toggles, KPIs, sentiment chart, and top posts.
+    \item Add frontend support for paste-text and file upload analysis flows.
+    \item Implement error handling and user experience states (loading, empty, or error views).
+    \item Containerize backend and frontend with Docker and provide a Compose file for local deployment.
+    \item \textbf{Stretch Goal:} Add live stock price overlay to sentiment time-series chart.
+    \item \textbf{Stretch Goal:} Add optional scheduler and caching to refresh and store results in memory.
+    \item \textbf{Stretch Goal:} Add persistent storage layer for texts, scores, and aggregates.
+    \item \textbf{Stretch Goal:} Prototype predictive model combining sentiment features with price baselines.
 \end{itemize}
 
 
