@@ -8,15 +8,73 @@
 \singlespace
 \usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry}
 
-\title{\textbf{Project Topic}}
-\author{Your Name}
+\title{\textbf{Sentiment Analysis as a tool for Financial Market Analysis}}
+\author{Anany Sachan}
 
 \begin{document}
 
 \maketitle
 
-In your proposal, you will provide justification on why your project matters based on work which has been done in this area, using in-line citations~\cite{clrsAlgorithms} to refer to existing works. Include what your project will accomplish and how your software will function. 
+In recent decades, sentiment analysis has emerged as one of the most widely studied applications of 
+natural language processing (NLP). At its core, sentiment analysis refers to the automatic detection of 
+opinions, attitudes, and emotions expressed in text. Foundational work by Pang, Lee, and Vaithyanathan 
+established that classical machine learning methods such as Naïve Bayes, Maximum Entropy, and Support 
+Vector Machines could be successfully applied to classify movie reviews as positive or negative 
+\cite{10.3115/1118693.1118704}. This research established sentiment classification as a formal 
+computational task and inspired a wave of subsequent studies across domains ranging from politics to 
+product reviews.
 
+As the field matured, researchers began to move beyond polarity detection toward the identification of 
+richer affective states. Mohammad surveyed advances in detecting valence, discrete emotions such as joy, 
+anger, or fear, and other affectual categories, while also highlighting issues of bias, fairness, and 
+societal consequences \cite{SentimentEmotionSurvey2021}. Around the same time, deep learning models 
+began to dominate sentiment analysis tasks. Surveys such as Zhang, Wang, and Liu documented how 
+convolutional and recurrent neural networks dramatically improved performance compared to traditional 
+approaches, especially when trained on large labeled datasets \cite{10.1002/widm.1253}.
+
+The most significant methodological breakthrough came with the introduction of transformer-based 
+language models, particularly BERT and its domain-specific variants. Transformers rely on attention 
+mechanisms that capture long-range dependencies in text, enabling much more accurate contextual 
+representations than bag-of-words or recurrent architectures. Subsequent surveys and applied studies 
+demonstrated that transformer models outperform previous baselines across a wide range of sentiment 
+tasks \cite{10.1145/3586075,10.1145/3650215.3650260}. In the financial domain, fine-tuned transformer 
+models such as FinBERT have been shown to significantly improve sentiment detection in technical texts 
+like earnings reports and analyst briefings \cite{10.1145/3543873.3587605,araci2019finbert}.
+
+The significance of these advances lies in the growing recognition that public sentiment is a powerful 
+driver of financial markets. Traditional quantitative models, which rely primarily on historical prices 
+and trading volume, fail to account for the behavioral and psychological forces that often dictate 
+short-term volatility. Events such as the 2021 GameStop short squeeze—fueled largely by sentiment on 
+Reddit's r/wallstreetbets—illustrate the real-world consequences of collective investor mood 
+\cite{Desiderio_2025}. Incorporating sentiment signals into financial analysis has the potential to 
+improve forecasting, risk management, and decision-making \cite{jiang2025financialsentiment}. Recent 
+work has begun to test this hypothesis, showing correlations between sentiment derived from social 
+media or news and subsequent asset price movements \cite{10.1109/MCI.2018.2866727}. However, these 
+methods remain far from standardized, and questions remain regarding reliability, data bias, and 
+robustness across market conditions.
+
+The goal of this project is to design and implement a finance-focused sentiment analysis system that 
+builds on the trajectory of prior research while addressing gaps in applied usage. Specifically, I will 
+develop a \textbf{Finance Sentiment Dashboard}: a software application that ingests financial text data 
+(news headlines, social media posts, or discussion forum content) and outputs sentiment classifications 
+and visualizations in near real-time. The system will leverage a transformer-based model fine-tuned for 
+financial text, such as FinBERT, to provide ticker-specific sentiment scores and trends.
+
+The proposed software will have three main capabilities. First, users will be able to enter a stock 
+ticker symbol, at which point the backend will collect relevant recent text data from configured 
+sources. Second, the system will preprocess the data and apply the sentiment model to classify texts 
+as positive, negative, or neutral with respect to financial outlook. Third, the frontend will display 
+results in a clear, interactive dashboard, including aggregate sentiment metrics, temporal trend charts, 
+and confidence estimates.
+
+By combining academic rigor with practical functionality, this project will contribute both to scholarly 
+discussions and to applied finance practice. It demonstrates how the evolution of sentiment analysis — 
+from early machine learning approaches \cite{10.3115/1118693.1118704}, through emotional nuance 
+\cite{SentimentEmotionSurvey2021}, to modern transformer architectures 
+\cite{10.1145/3586075,10.1145/3543873.3587605} — can be operationalized into a real-world tool. At the 
+same time, it aims to provide users with an accessible interface for exploring how public mood 
+influences financial markets, reinforcing the significance of sentiment as both a computational and 
+economic phenomenon.
 
 \newpage
 \section*{Appendix}
