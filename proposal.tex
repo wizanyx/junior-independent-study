@@ -5,7 +5,7 @@
 \graphicspath{ {./imgs/} }
 \usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry}
 
-\title{\textbf{Sentiment Analysis as a tool for Financial Market Analysis}}
+\title{\textbf{Leveraging Transformer-Based Sentiment Analysis for Financial Market Insights}}
 \author{Anany Sachan}
 
 \begin{document}
@@ -85,26 +85,38 @@ economic phenomenon.
 A concise list of features / user stories in the order in which they will be built.
 
 \begin{itemize}
-    \item Initialize project repository and environment (backend with Flask, frontend with React).
-    \item Configure environment variables and secrets for API keys and rate limits.
-    \item Define a common document schema to be used across adapters and APIs.
-    \item Implement paste-text analysis endpoint in the backend.
-    \item Implement CSV upload analysis endpoint in the backend.
-    \item Create news ingestion adapter for pulling recent financial headlines.
-    \item Create Reddit/StockTwits ingestion adapter for ticker-specific posts.
-    \item Build preprocessing pipeline for text cleaning, deduplication, and ticker mapping.
-    \item Integrate FinBERT model for sentiment inference.
-    \item Implement aggregation module to compute metrics (mean sentiment, \% positive, volume, neg/pos ratio).
-    \item Add explainability endpoint for token-level highlights of sentiment predictions.
-    \item Develop REST API endpoints for metrics, posts, explanations, and system health.
-    \item Build core React dashboard with ticker input, source toggles, KPIs, sentiment chart, and top posts.
-    \item Add frontend support for paste-text and file upload analysis flows.
-    \item Implement error handling and user experience states (loading, empty, or error views).
-    \item Containerize backend and frontend with Docker and provide a Compose file for local deployment.
-    \item \textbf{Stretch Goal:} Add live stock price overlay to sentiment time-series chart.
-    \item \textbf{Stretch Goal:} Add optional scheduler and caching to refresh and store results in memory.
-    \item \textbf{Stretch Goal:} Add persistent storage layer for texts, scores, and aggregates.
-    \item \textbf{Stretch Goal:} Prototype predictive model combining sentiment features with price baselines.
+    \item Set up the foundational project environment for backend (Flask) and frontend (React), 
+          including code quality tools, base tests, and optional CI workflow.
+    \item Configure environment variables and secrets for API keys and external service access.
+    \item Define and enforce a common document schema for all ingested and uploaded texts across 
+          adapters and APIs.
+    \item Implement a preprocessing pipeline for text cleaning, deduplication, and mapping to ticker 
+          symbols.
+    \item Integrate the FinBERT model to perform financial sentiment inference on text data.
+    \item Add a backend endpoint for analyzing pasted text and returning sentiment results.
+    \item Add a backend endpoint for analyzing uploaded CSV files and returning sentiment results.
+    \item Develop a news ingestion adapter to fetch recent financial headlines for given tickers.
+    \item Develop a Reddit/StockTwits ingestion adapter to collect ticker-specific posts.
+    \item Create an aggregation module to compute sentiment metrics (mean score, percent positive, 
+          volume, positive/negative ratio).
+    \item Implement an explainability endpoint that returns token-level sentiment highlights for model 
+          predictions.
+    \item Develop REST API endpoints for metrics, posts, explanations, and system health monitoring.
+    \item Build the core React dashboard with ticker input, source toggles, KPI displays, sentiment 
+          chart, and top posts list.
+    \item Add frontend flows for paste-text and file upload sentiment analysis.
+    \item Implement user experience states such as loading, empty view, and error handling in the 
+          frontend.
+    \item Containerize both backend and frontend using Docker and supply a Compose file for local 
+          deployment.
+    \item (\textbf{Stretch Goal}) Implement a scheduler and caching mechanism to periodically refresh 
+          and store sentiment results in memory.
+    \item (\textbf{Stretch Goal}) Add a persistent storage layer for texts, sentiment scores, and 
+          aggregated metrics.
+    \item (\textbf{Stretch Goal}) Add a live stock price overlay to the sentiment time-series chart in 
+          the dashboard.
+    \item (\textbf{Stretch Goal}) Develop a prototype predictive model that combines sentiment features 
+          with price baselines for short-term forecasting.
 \end{itemize}
 
 
