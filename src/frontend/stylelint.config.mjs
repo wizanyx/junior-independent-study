@@ -1,5 +1,11 @@
 /** @type {import('stylelint').Config} */
 export default {
   extends: ['stylelint-config-standard', 'stylelint-prettier/recommended'],
-  ignoreFiles: ['**/dist/**'],
+  ignoreFiles: [
+    '**/dist/**',
+    '**/node_modules/**',
+    '**/build/**',
+    '**/venv/**',
+    '**/coverage/**',
+  ],
 };

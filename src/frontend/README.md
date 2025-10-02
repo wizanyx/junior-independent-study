@@ -4,51 +4,67 @@ This is the frontend for the Finance Sentiment Dashboard project, built with Rea
 
 ## Getting Started (End Users)
 
-1. **Install dependencies:**
+1. **Environment variables:**
+
+   Create your env file from the example and adjust the API base:
+
+   ```sh
+   cp .env.example .env
+   # ensure VITE_API_BASE_URL points to your backend (default: http://localhost:8000)
+   ```
+
+2. **Install dependencies:**
 
    ```sh
    npm install --omit=dev
    ```
 
-2. **Build for production:**
+3. **Build for production:**
 
    ```sh
    npm run build
    ```
 
-3. **Preview the production build:**
+4. **Preview the production build:**
    ```sh
    npm run preview
    ```
 
 ## Developer Setup
 
-1. **Install dependencies:**
+1. **Environment variables:**
+
+   ```sh
+   cp .env.example .env
+   # set VITE_API_BASE_URL (e.g., http://localhost:8000)
+   ```
+
+2. **Install dependencies:**
 
    ```sh
    npm install
    ```
 
-2. **Set up pre-commit hooks (Husky + lint-staged):**
+3. **Set up pre-commit hooks (Husky + lint-staged):**
 
    ```sh
    npm run prepare
    ```
 
-3. **Run the development server:**
+4. **Run the development server:**
 
    ```sh
    npm run dev
    ```
 
-4. **Lint and format code:**
+5. **Lint and format code:**
 
    ```sh
    npm run lint
    npm run format
    ```
 
-5. **Run tests:**
+6. **Run tests:**
 
    ```sh
    npm run test
@@ -56,7 +72,7 @@ This is the frontend for the Finance Sentiment Dashboard project, built with Rea
    npm run test:ui
    ```
 
-6. **Run code coverage:**
+7. **Run code coverage:**
 
    ```sh
    npm run test:coverage      # or: vitest --coverage
@@ -68,12 +84,17 @@ This is the frontend for the Finance Sentiment Dashboard project, built with Rea
 ```
 src/frontend/
 ├── src/           # React app source
+│   └── lib/api.ts # API client using VITE_API_BASE_URL
 ├── public/        # Static files
 ├── package.json
 ├── tsconfig.json
 ├── vite.config.ts
 └── ...
 ```
+
+## Notes
+
+- The app expects the backend running on the URL specified by `VITE_API_BASE_URL`. Default backend port is `8000`.
 
 ## License
 

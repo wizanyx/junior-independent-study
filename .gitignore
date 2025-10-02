@@ -1,21 +1,21 @@
 ## Core latex/pdflatex auxiliary files:
+.*.lb
 *.aux
+*.cb
+*.cb2
+*.fls
+*.fmt
+*.fot
 *.lof
 *.log
 *.lot
-*.fls
 *.out
 *.toc
-*.fmt
-*.fot
-*.cb
-*.cb2
-.*.lb
 
 ## Intermediate documents:
+*-converted-to.*
 *.dvi
 *.xdv
-*-converted-to.*
 # these rules might exclude image files for figures etc.
 # *.ps
 # *.eps
@@ -26,20 +26,20 @@
 #.pdf
 
 ## Bibliography auxiliary files (bibtex/biblatex/biber):
+*-blx.aux
+*-blx.bib
 *.bbl
 *.bcf
 *.blg
-*-blx.aux
-*-blx.bib
 *.run.xml
 
 ## Build tool auxiliary files:
 *.fdb_latexmk
+*.pdfsync
 *.synctex
 *.synctex(busy)
 *.synctex.gz
 *.synctex.gz(busy)
-*.pdfsync
 
 ## Build tool directories for auxiliary files
 # latexrun
@@ -88,20 +88,20 @@ acs-*.bib
 *.tfm
 
 #(r)(e)ledmac/(r)(e)ledpar
-*.end
-*.?end
 *.[1-9]
 *.[1-9][0-9]
 *.[1-9][0-9][0-9]
 *.[1-9]R
 *.[1-9][0-9]R
 *.[1-9][0-9][0-9]R
+*.?end
 *.eledsec[1-9]
 *.eledsec[1-9]R
 *.eledsec[1-9][0-9]
 *.eledsec[1-9][0-9]R
 *.eledsec[1-9][0-9][0-9]
 *.eledsec[1-9][0-9][0-9]R
+*.end
 
 # glossaries
 *.acn
@@ -161,8 +161,8 @@ acs-*.bib
 *.stc[0-9]*
 
 # minted
-_minted*
 *.pyg
+_minted*
 
 # morewrites
 *.mw
@@ -179,8 +179,8 @@ _minted*
 *.pdfpc
 
 # sagetex
-*.sagetex.sage
 *.sagetex.py
+*.sagetex.sage
 *.sagetex.scmd
 
 # scrwfile
@@ -206,9 +206,9 @@ pythontex-files-*/
 *.loe
 
 # TikZ & PGF
+*.auxlock
 *.dpth
 *.md5
-*.auxlock
 
 # todonotes
 *.tdo
@@ -234,8 +234,8 @@ pythontex-files-*/
 *.xyd
 
 # endfloat
-*.ttt
 *.fff
+*.ttt
 
 # Latexian
 TSWLatexianTemp*
@@ -278,3 +278,82 @@ TSWLatexianTemp*
 
 # Makeindex log files
 *.lpz
+
+# Backend
+# Byte-compiled / optimized / DLL files
+*.py[cod]
+*.pyo
+__pycache__/
+
+# Virtual environment
+.env/
+.env.*
+.poetry/
+venv/
+
+# Environment variables
+!*.example
+.env
+
+# Pytest cache
+.cache/
+.pytest_cache/
+
+# mypy
+.dmypy.json
+.mypy_cache/
+dmypy.json
+
+# Ruff cache
+.ruff_cache/
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs
+
+# Miscellaneous
+*.swo
+*.swp
+
+# Ignore test output
+.coverage
+*.egg-info/
+.eggs/
+.tox/
+build/
+coverage
+coverage.*
+dist/
+dist-ssr
+htmlcov/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Frontend
+# Logs
+lerna-debug.log*
+node_modules
+npm-debug.log*
+pnpm-debug.log*
+*.local
+yarn-debug.log*
+yarn-error.log*
+
+# Editor directories and files
+!.vscode/extensions.json
+.DS_Store
+.idea
+.njsproj
+.sln
+.suo
+.vscode/*
+*.ntvs*
+*.sw?
