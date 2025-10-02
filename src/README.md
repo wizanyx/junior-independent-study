@@ -27,6 +27,17 @@ You will need the following tools installed on your machine:
 
 ---
 
+## 🔧 Environment configuration
+
+This project uses environment variables for both backend and frontend.
+
+- The **backend** (`src/backend`) reads from `.env` (copied from `.env.example`) using [python-dotenv](https://pypi.org/project/python-dotenv/). Missing keys will be logged as warnings and the corresponding source will be disabled (fail-soft behavior).
+- The **frontend** (`src/frontend`) reads only variables prefixed with `VITE_` from its own `.env` (copied from `.env.example`). Never put secrets here — they are embedded in the build and exposed to the browser.
+
+See the subproject READMEs for detailed configuration instructions.
+
+---
+
 ## 🛠 Installation (For End Users)
 
 ### Clone the repo:
@@ -40,14 +51,23 @@ cd junior-independent-study/
 
 ```sh
 cd src/backend
+cp .env.example .env
 poetry install --no-dev
-poetry run flask run
+poetry run python -m app
+```
+
+The backend serves on port 8000 by default (change with `API_PORT`). CORS is enabled for origins in `CORS_ALLOWED_ORIGINS`.
+
+Health check:
+```sh
+curl http://localhost:8000/health
 ```
 
 ### Frontend
 
 ```sh
 cd src/frontend
+cp .env.example .env
 npm install --omit=dev
 npm run build
 npm run preview
@@ -92,7 +112,7 @@ npm run dev
 
 # Backend
 cd src/backend
-poetry run flask run
+poetry run flask --app app:create_app --debug run --port 8000
 ```
 
 ### 4. Lint, Format, and Test
@@ -131,8 +151,8 @@ poetry run pytest --cov=app
 
 ## 📁 Additional Information
 
-- Each subdirectory (`backend/` and `frontend/`) contains its own `README.md` with more detailed setup, usage, and contribution instructions.
-- For environment variable configuration or advanced deployment, refer to the respective subproject’s README.
+- Each subdirectory (`backend/` and `frontend/`) contains its own `README.md` with more detailed setup, environment variables, and usage instructions.
+- For advanced deployment, refer to the respective subproject’s README.
 
 ---
 

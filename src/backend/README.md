@@ -8,6 +8,7 @@ This is the backend service for the Finance Sentiment Dashboard project. It leve
 - Integration with FinBERT and other transformer-based models
 - Preprocessing pipeline for financial text
 - Aggregation and explainability endpoints
+- CORS enabled via `flask-cors`
 - Robust code quality via Poetry, Ruff, Mypy, Pytest, pytest-cov, and pre-commit
 
 ## Project Structure
@@ -15,26 +16,49 @@ This is the backend service for the Finance Sentiment Dashboard project. It leve
 ```
 src/backend/
 ├── app/                        # Backend application code (Flask)
-│   └── __init__.py
+│   ├── __init__.py             # App factory, routes (e.g., /health)
+│   └── config.py               # Settings loaded from .env
 ├── tests/                      # Test suite
 │   ├── __init__.py
 │   └── app_test.py
-├── .gitignore                  # Gitignore
-├── .pre-commit-config.yaml     # Pre-commit hooks for code quality
+├── .env.example                # Example environment variables
 ├── poetry.lock                 # Poetry dependency lockfile
-├── pyproject.toml              # Project metadata and dependencies
-├── README.md                   # This file
-├── requirements-dev.txt        # Dev dependency list
-└── requirements.txt            # Dependency list
+└── pyproject.toml              # Project metadata and dependencies
 ```
+
+## Environment
+
+Copy the example and edit values as needed:
+
+```sh
+cd src/backend
+cp .env.example .env
+```
+
+Key variables (see `.env.example` for defaults):
+- `FLASK_ENV` (default `development`)
+- `API_PORT` (default `8000`)
+- `CORS_ALLOWED_ORIGINS` (comma-separated, default `http://localhost:5173`)
+- `ENABLE_SOURCES` (default `news,reddit`)
+- `NEWS_API_KEY`, `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`, `REDDIT_USER_AGENT`
+
+Settings are loaded via `python-dotenv` and `app/config.py` computes `enabled_sources` based on provided credentials.
 
 ## Installation (End Users)
 
 ```sh
 cd src/backend
 poetry install --no-dev
-poetry run flask run
+poetry run python -m app
 ```
+
+By default the server runs on port 8000. Change with `API_PORT`.
+
+Health check:
+```sh
+curl http://localhost:8000/health
+```
+Response JSON includes: `status`, `env`, `enabled_sources`, `default_window_hours`.
 
 ## Developer Setup
 
@@ -53,7 +77,7 @@ poetry run flask run
 3. **Run the development server:**
 
    ```sh
-   poetry run flask run
+   poetry run flask --app app:create_app --debug run --port 8000
    ```
 
 4. **Lint and type-check:**
@@ -73,8 +97,12 @@ poetry run flask run
 
    ```sh
    poetry run pytest --cov=app --cov-report=term-missing --cov-report=html
-   # View the HTML report by opening htmlcov/index.html in your browser
+   # View HTML report at htmlcov/index.html
    ```
+
+## CORS
+
+CORS is configured via `flask-cors` and allowed origins come from `CORS_ALLOWED_ORIGINS`. Use a comma-separated list for multiple origins.
 
 ## Contributing
 
