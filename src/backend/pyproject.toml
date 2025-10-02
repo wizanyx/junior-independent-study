@@ -1,0 +1,43 @@
+[tool.poetry]
+name = "finsight-backend"
+version = "0.0.1"
+description = "Backend for a finance-focused sentiment analysis dashboard. Powers real-time, ticker-specific sentiment classification and visualization using transformer-based models like FinBERT. Handles data ingestion, preprocessing, sentiment inference, aggregation, and REST API endpoints for financial text from news, social media, and user uploads."
+authors = ["Anany Sachan <ananysachan2005@gmail.com>"]
+readme = "README.md"
+packages = [{ include = "app" }]
+
+[tool.poetry.dependencies]
+python = ">=3.11,<4.0"
+flask = "^3.1.2"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.13.0"
+pytest = "^8.4.2"
+mypy = "^1.18.1"
+pre-commit = "^4.3.0"
+pytest-cov = "^7.0.0"
+
+[tool.poetry.requires-plugins]
+poetry-plugin-export = ">=1.8"
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+lint.select = ["E", "F", "I"]
+lint.ignore = []
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.mypy]
+python_version = "3.11"
+check_untyped_defs = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

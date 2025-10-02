@@ -1,0 +1,6 @@
+cd src/backend
+poetry run pre-commit run --hook-stage pre-commit
+
+cd ../frontend
+npm test
+npx lint-staged
