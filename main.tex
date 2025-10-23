@@ -8,20 +8,183 @@
 \singlespace
 \usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry}
 
-\title{\textbf{Project Topic}}
-\author{Your Name}
+\title{\textbf{Leveraging Transformer-Based Sentiment Analysis for Financial Market Insights}}
+\author{Anany Sachan}
 
 \begin{document}
 
 \maketitle
 
 \section{Introduction}
-The introduction will broadly introduce your topic, motivate it, and describe what will be done.
+Financial markets are profoundly influenced not only by economic fundamentals but also by the sentiments and
+psychology of investors. In recent years, the proliferation of online financial news, social media platforms,
+and discussion forums has created an abundance of textual data reflecting the real-time ``market mood''. This
+has spurred growing interest in sentiment analysis as a tool to quantify and track these emotions and
+opinions at scale. Major financial data providers now even offer sentiment indices as part of their
+analytics services, underscoring the perceived value of such measures~\cite{10.1109/MCI.2018.2866727}. In
+fact, the sentiment index of market participants has been extensively used for stock market prediction in
+recent years~\cite{10.1109/MCI.2018.2866727}, with evidence that incorporating sentiment can improve
+forecasting accuracy and investment decisions.
 
-\section{Related Works}
+However, harnessing unstructured sentiment data effectively remains challenging due to the sheer volume and
+velocity of text streams and the nuanced language (including slang, sarcasm, and domain-specific jargon)
+prevalent in financial discourse. These challenges motivate the development of a real-time sentiment analysis
+dashboard for finance---a system to ``nowcast'' market mood by continuously analyzing textual data sources.
+\textit{Nowcasting}, in this context, refers to the real-time estimation of current market sentiment (as
+opposed to traditional forecasting which predicts future trends). A reliable nowcasting tool could alert
+traders and analysts to sudden shifts in investor optimism or fear, potentially offering early indicators of
+market movements. For example, collective bullish enthusiasm on social media forums was a driving force
+behind events such as the GameStop short squeeze in early 2021, where coordinated sentiment on Reddit's
+WallStreetBets forum helped fuel extreme volatility in GameStop's stock price~\cite{Desiderio_2025}. This
+project's significance lies in bridging advances in natural language processing with financial analytics to
+capture such phenomena.
+
+\section{Background}
+\subsection{Natural Language Processing and Sentiment Analysis.}
+\textit{Sentiment analysis} (or opinion mining) is a subfield of natural language processing (NLP) that
+focuses on identifying and extracting subjective information from text---typically the polarity (positive,
+negative, neutral) of opinions or the emotion and attitude expressed. Early approaches to sentiment analysis
+often relied on lexicon-based methods: using dictionaries of sentiment-laden words to determine a text's
+overall sentiment. For example, a simple lexicon-based system might count occurrences of ``positive'' words
+minus ``negative'' words to assign a sentiment score. Domain-specific lexicons (such as Loughran and
+McDonald's finance sentiment word lists) were developed to better handle financial terminology, which differs
+from everyday language (e.g., words like ``bullish,'' ``bearish,'' or ``short'' have special meanings in
+markets). While straightforward and interpretable, lexicon-based methods have inherent limitations---they
+cannot easily account for context, sarcasm, negation, or shifting word usages, and their accuracy hinges on
+the completeness of the predefined word list.
+
+As the field matured, \textbf{machine learning} techniques quickly supplanted pure lexicon-based systems for
+sentiment classification tasks. Instead of fixed dictionaries, machine learning approaches learn to infer
+sentiment from examples of labeled text. A seminal work by Pang et al. (2002) showed that standard machine
+learning classifiers (Naïve Bayes, maximum entropy, and support vector machines) significantly outperformed
+human-crafted keyword baselines on movie review sentiment classification~\cite{10.3115/1118693.1118704}. This
+study also highlighted that sentiment classification is more challenging than topic-based text
+classification, owing to the need to detect subtle linguistic cues (for instance, negation or sarcasm) rather
+than just content words~\cite{10.3115/1118693.1118704}. The implication was that more sophisticated features
+and models were required to capture the nuance in sentiment-bearing language.
+
+\subsection{Deep Learning and Transformer Models.}
+In the past decade, advances in deep learning have dramatically improved the performance of NLP tasks,
+including sentiment analysis. Neural network architectures like \textbf{convolutional neural networks (CNNs)}
+and \textbf{recurrent neural networks (RNNs)} (particularly Long Short-Term Memory networks, LSTMs) enabled
+models to automatically learn rich feature representations from text data. These approaches surpassed earlier
+algorithms by capturing word order, semantic nuance, and contextual relationships more effectively than
+bag-of-words models or manual feature engineering~\cite{10.1002/widm.1253}. Zhang et al.'s comprehensive
+survey (2018) notes that deep learning methods began to consistently outperform traditional classifiers (such
+as SVM or logistic regression) on sentiment tasks by learning multiple layers of abstract features~
+\cite{10.1002/widm.1253}. The introduction of \textit{word embeddings} (e.g., Word2Vec, GloVe) also boosted
+sentiment analysis, as words could be represented in vector spaces that encode semantic similarity, helping
+algorithms generalize beyond exact keyword matches.
+
+The most significant recent breakthrough has been the emergence of \textbf{transformer-based language models},
+epitomized by \textbf{BERT} (Bidirectional Encoder Representations from Transformers) introduced by Devlin et
+al.~\cite{devlin-etal-2019-bert}. Transformer models use self-attention mechanisms to capture long-range
+dependencies in text and can be trained on massive corpora to learn contextual language representations.
+Unlike earlier RNNs, transformers process words in parallel and consider both left and right context
+simultaneously, enabling a deeper understanding of meaning. Fine-tuned transformer models now achieve
+state-of-the-art results on a wide range of NLP benchmarks, including sentiment classification. For example,
+one study found that a transformer-based classifier significantly outperformed an LSTM and other prior
+models on a large Twitter sentiment dataset, particularly excelling at handling the noisy, informal language
+of social media~\cite{10.1145/3650215.3650260}. The success of transformers has been so pronounced that they
+have become the dominant paradigm in NLP, even spurring new directions such as \textit{multimodal} sentiment
+analysis that combines text with audio or visual cues~\cite{10.1145/3586075}.
+
+Despite these advancements, certain challenges in sentiment analysis persist. Subtle linguistic phenomena
+like sarcasm, idioms, and context-dependent irony remain difficult for algorithms to fully grasp~
+\cite{SentimentEmotionSurvey2021}. There are also concerns about biases in models (e.g., language models
+learning biased associations from training data) and how well models generalize across domains~
+\cite{SentimentEmotionSurvey2021}. Notably, the financial domain presents a unique context: language in
+analyst reports, news headlines, or trader chats can be very domain-specific, filled with jargon and phrases
+that are rare in general text corpora. A general-purpose model might misinterpret or simply not understand
+such domain-specific language. This gap has led researchers to pursue domain adaptation strategies
+---tailoring NLP models specifically for finance.
+
+\subsection{FinBERT and Domain-Specific Modeling}
+One pivotal development in this regard was the creation of \textbf{FinBERT} by Araci (2019)~
+\cite{araci2019finbert}. FinBERT is a variant of the BERT model that was further pre-trained on large volumes
+of financial text (e.g., news articles, earnings reports, and financial forums) to imbue it with
+domain-specific knowledge. The motivation for FinBERT was that while generic BERT captures general language
+patterns, it may struggle with specialized terminology and context found in finance (for instance,
+interpreting ``market rally'' or ``dead cat bounce''). By continuing BERT's training on a finance corpus and
+then fine-tuning it for sentiment classification, FinBERT achieved superior performance on financial
+sentiment tasks compared to off-the-shelf models~\cite{araci2019finbert}.
+
+In evaluations, FinBERT consistently outperformed general models and earlier deep learning methods when
+classifying the sentiment of financial news and reports~\cite{araci2019finbert}. This demonstrated that
+domain-specific language models can substantially improve accuracy by accounting for the nuances of
+industry-specific language. FinBERT and similar finance-focused NLP models have since been widely adopted in
+both research and industry for tasks like analyzing news sentiment, earnings call transcripts, and social
+media discussions related to stocks.
+
+In summary, the evolution of sentiment analysis techniques---from lexicon approaches to machine learning, and
+from simple classifiers to transformers like BERT---has provided an expanding toolkit for tackling the
+problem of understanding market mood. The challenge now lies in applying these tools effectively to real-time
+financial data streams, which is the focus of our project.
+
+\section{Related Work}
+Research at the intersection of textual sentiment analysis and finance is rich and multifaceted. Broadly,
+prior work can be grouped into two themes: (1) developing specialized sentiment analysis models for financial
+language, and (2) applying sentiment-based indicators to financial forecasting or market analysis.
+
+\subsection{Financial Sentiment Models}
+A cornerstone in this area is the aforementioned \textbf{FinBERT} model.
+Araci's work~\cite{araci2019finbert} demonstrated that adapting a transformer to financial text data yields
+clear benefits for sentiment classification in finance. FinBERT's introduction has spurred further research
+into domain-specific NLP, and it serves as a foundation for many subsequent studies. For instance, Jiang and
+Zeng~\cite{jiang2025financialsentiment} leverage FinBERT to extract sentiment signals from financial news,
+which they then input into a predictive model for stock movement. In their approach, daily news articles are
+fed through FinBERT to produce sentiment scores or embeddings, and these features are used alongside an
+LSTM-based temporal model to forecast stock price trends. They report that the FinBERT-enhanced model
+significantly outperforms comparable models using a generic BERT or using no text input at all, confirming
+that finance-tailored language models can improve predictive accuracy in market tasks. This finding aligns
+with the general intuition that more informative representations of text (in this case, capturing
+finance-specific context) translate into better downstream predictions.
+
+\subsection{Sentiment in Market Prediction}
+Even before the deep learning era, researchers explored links between public sentiment and market behavior.
+A variety of textual sources have been studied, including news, financial reports, and
+social media. Early studies (e.g., 2000s-era works by Tetlock and others) found that negative tone
+in news or investor forums can predict short-term dips in stock prices, suggesting that sentiment contains
+predictive signal. More recent work has continued to validate and extend these insights. Xing et al. (2018)
+provide a clear example by constructing a sentiment index from social media posts and integrating it into an
+asset allocation framework~\cite{10.1109/MCI.2018.2866727}. They use an ensemble of clustering and LSTM
+models to process streams of Twitter and forum data, distill a market sentiment time series, and incorporate
+it as ``market views'' in a Bayesian portfolio optimization. The result was improved portfolio performance
+(in terms of stability and returns) compared to strategies that ignore sentiment~
+\cite{10.1109/MCI.2018.2866727}. This study not only underscores that sentiment can enhance predictive
+models, but also illustrates a methodology for merging textual signals with traditional financial theories
+(Modern Portfolio Theory, in that case). Similarly, other works have used sentiment extracted from news
+headlines or financial blogs to forecast stock returns or volatility, often reporting that sentiment features
+add incremental predictive power on top of technical or fundamental features. The consensus emerging from
+these studies is that there is measurable information content in the collective mood of market participants,
+which, if quantified correctly, can be useful for nowcasting and forecasting financial market dynamics.
+
+\subsection{Social Media and Alternative Data}
+A particularly vibrant strand of recent research focuses on social media sentiment, given the
+outsized impact platforms like Twitter, Reddit, and StockTwits now have on retail investor behavior. Social
+media data is noisy and rife with slang, memes, and unstructured narratives, making it challenging for
+traditional NLP models.
+
+Deng et al. (2023) highlight this challenge in their Reddit sentiment analysis study:
+they note that understanding content from the r/WallStreetBets community requires both financial knowledge
+and fluency in internet vernacular, which makes obtaining high-quality labeled data difficult~
+\cite{10.1145/3543873.3587605}. To tackle this, they employ a \textbf{semi-supervised learning} pipeline
+using a large language model (GPT-3 variant) to generate ``weak'' sentiment labels for thousands of Reddit
+posts. These LLM-generated labels (refined through prompt techniques like chain-of-thought reasoning) are
+then used to train a smaller, deployable model~\cite{10.1145/3543873.3587605}. Remarkably, with only a
+handful of manual prompts to guide the LLM, the final distilled model achieved accuracy on par with fully
+supervised models---illustrating the great potential of LLMs to bootstrap sentiment analysis when
+human-labeled data is scarce.
+
+This approach is especially relevant for finance, where new slang (e.g., ``diamond hands,'' ``to the moon'')
+and rapidly evolving topics can quickly outdated static lexicons or past training data. In addition to
+methodological advances, social media has also been the subject of case studies linking sentiment to market
+events. For example, Desiderio et al. (2025) examine the dynamics of the Reddit-driven GameStop short
+squeeze, quantitatively analyzing how collective bullish sentiment online coalesced into a coordinated buying
+frenzy~\cite{Desiderio_2025}. Their findings shed light on the feedback loop between viral social-media
+sentiment and extreme market outcomes, reinforcing why real-time monitoring of such sentiment is important.
 
 \section{Methodology}
-Dijkstra's algorithm was chosen for single-source shortest path computation on graphs with non-negative edge weights, following the implementation presented in CLRS~\cite{clrsAlgorithms}.
 
 \section{Results}
 
