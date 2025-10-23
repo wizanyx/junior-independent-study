@@ -6,6 +6,8 @@
 \documentclass[12pt]{article}
 \usepackage{setspace}
 \singlespace
+\usepackage{graphicx}
+\graphicspath{ {./imgs/} }
 \usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry}
 
 \title{\textbf{Leveraging Transformer-Based Sentiment Analysis for Financial Market Insights}}
@@ -185,10 +187,246 @@ frenzy~\cite{Desiderio_2025}. Their findings shed light on the feedback loop bet
 sentiment and extreme market outcomes, reinforcing why real-time monitoring of such sentiment is important.
 
 \section{Methodology}
+Our primary goal is to create a real-time sentiment analysis dashboard that can nowcast market mood by
+aggregating textual data from multiple sources. In particular, we focus on two contrasting data streams: (1)
+financial news articles, which provide formal and vetted information, and (2) social media posts from
+platforms like Reddit, which capture informal investor opinion. These sources were chosen to balance
+credibility and timeliness - news reflects the perspectives of journalists and analysts, while Reddit (e.g.,
+posts from communities such as \texttt{r/WallStreetBets}) reflects retail investor sentiment in the wild.
+Both have been identified in prior research as rich sources of market sentiment
+\cite{10.1109/MCI.2018.2866727}. The target sentiment categories in our analysis are positive, negative, or
+neutral, following standard practice in sentiment classification. Each incoming text will be labeled with one
+of these polarities. We employ the transformer-based FinBERT model for this purpose, as it has been
+pre-trained and fine-tuned specifically for financial language~\cite{araci2019finbert}, making it well-suited
+to detect nuances in finance-specific text (e.g., distinguishing bullish vs. bearish context).
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.9\textwidth]{system-logic.png}
+  \caption{System architecture for the Dashboard}
+  \label{fig:arch}
+\end{figure}
+
+At a high level, our system's architecture follows a pipeline from user input to sentiment output.
+Figure~\ref{fig:arch} illustrates this overall architecture. The process can be summarized in several key
+stages:
+
+\begin{enumerate}
+  \item \textbf{User Input \& Query Formation:} The user selects or inputs a target of interest (such as a
+        specific stock ticker, company name, or market topic). This query defines the context for sentiment
+        analysis, ensuring that only relevant data is collected (e.g., news articles about that company, or
+        Reddit posts mentioning the ticker).
+  \item \textbf{Data Ingestion from Multiple Sources:} For each query, the system concurrently fetches new
+        textual data from the chosen sources. A news adapter retrieves the latest relevant news articles
+        (e.g., headlines or snippets from financial news APIs or RSS feeds), and a social media adapter pulls
+        recent Reddit posts or comments from finance-related subreddits that mention the query. We throttle
+        and schedule these requests to effectively capture real-time information without overloading any
+        single source.
+  \item \textbf{Text Preprocessing:} The collected texts are then cleaned and preprocessed. This step
+        includes removing irrelevant content (such as HTML tags, URLs, or special characters), normalizing
+        text (lowercasing, handling common slang or abbreviations), and potentially filtering out very short
+        or non-English messages. Domain-specific tokens (e.g., ticker symbols like GME, or slang like ``HODL'')
+        are preserved since they carry information. The goal is to format each text into a clean input string
+        suitable for the language model.
+  \item \textbf{Sentiment Classification with FinBERT:} Each preprocessed text is fed into the FinBERT model
+        to predict its sentiment category. FinBERT's output includes probabilities for the three classes,
+        which we convert into a discrete label (positive/negative/neutral) for simplicity. Because FinBERT is
+        trained on financial corpora, it can interpret context that generic models might misclassify; for
+        example, it understands that a sentence like “Dow falls on fears of rate hike” should be read as a
+        negative sentiment regarding market outlook. We do not further fine-tune FinBERT in this project (to
+        avoid expensive training), relying on the model's off-the-shelf capabilities~\cite{araci2019finbert}.
+        Each piece of text now has an associated sentiment score or label.
+  \item \textbf{Aggregation and Sentiment Index Computation:} Finally, the system aggregates individual
+        sentiments into an overall sentiment indicator. Depending on the use case, this could be a simple
+        aggregate (such as the percentage of positive vs. negative items in the last hour) or a weighted
+        sentiment score. In our implementation, we compute a sentiment index by assigning +1 to positive, -1
+        to negative (and 0 to neutral) classifications and averaging over all texts within a given time
+        window. This yields a continuous sentiment signal that can be tracked over time. The index can be
+        visualized as a time series to show sentiment trends (e.g., a sharp drop in the index might indicate
+        a surge of pessimistic news and posts). In addition, separate sentiment tallies for each source are
+        maintained so that the dashboard can display source-specific sentiments side by side.
+\end{enumerate}
+
+Through this pipeline, the system effectively transforms unstructured text streams into quantifiable
+sentiment metrics in real-time. The methodology ensures that our sentiment analysis is context-aware (thanks
+to FinBERT's domain knowledge) and comprehensive in coverage (by drawing from both news media and social
+media). In the next section, we discuss how this methodology was realized in practice via our system's
+implementation.
+
+\section{Implementation}
+To implement the above approach, we developed a modular web-based application consisting of a Python backend
+and a JavaScript frontend. The backend is built with the lightweight Flask framework, which exposes a RESTful
+API for data retrieval and sentiment analysis. The frontend is built in React, creating an interactive
+single-page application that displays the sentiment dashboard. This separation of concerns allows the heavy
+NLP processing to occur server-side, while users interact with a smooth, responsive interface in their web
+browser. The overall software architecture is service-oriented: the Flask API endpoints serve JSON data that
+the React frontend fetches and renders. Figure~\ref{fig:ui} shows a prototype of the user
+interface, including charts for sentiment trends and controls for the user to select different stock tickers or time ranges.
+
+On the backend, we implemented dedicated ingestion adapters for each data source. \textit{Expand this later
+when adapters are implemented}.
+
+Both adapters feed incoming text to a preprocessing pipeline. Implemented in Python, this pipeline cleans and
+normalizes text as described in the methodology. Specifically, we remove URLs, user mentions, and markup from
+Reddit text (while preserving salient tokens like cashtags or tickers that start with \$). We also strip
+common stop words and punctuation from news snippets to reduce clutter for the language model. In this stage,
+we pay attention to case normalization (since FinBERT is cased, we generally preserve case), and we ensure
+that each text does not exceed BERT's maximum token length (512 tokens). If a news article is too long (which
+is uncommon for headlines/snippets), it is truncated or split into multiple segments for analysis.
+
+After preprocessing, the core sentiment classification step is handled by FinBERT. We integrate FinBERT using
+the Hugging Face Transformers library, loading a pre-trained FinBERT model fine-tuned for sentiment analysis.
+The model is loaded once when the server starts and remains in memory to serve predictions quickly on demand.
+For each cleaned text, we call the model's inference pipeline (tokenizing the text and obtaining the softmax
+probabilities for each sentiment class). We then assign a sentiment label based on the highest probability.
+This entire process is encapsulated in a Flask route (for example, a \texttt{/analyze} endpoint) so that the
+front-end can trigger sentiment analysis via an HTTP request.
+
+On the frontend side, the React dashboard polls these API endpoints to get the newest data. The interface is
+designed to present key information at a glance. It includes: (a) a time-series chart that plots the
+sentiment index over time, updating in near real-time (e.g., a new point every minute), (b) a bar chart or
+pie chart showing the proportion of positive/negative/neutral posts in the latest window (with different
+colors for news vs. social media contributions), and (c) controls for the user to change the query or adjust
+settings (such as selecting a different subreddit or news source, or pausing the live updates).
+Figure~\ref{fig:ui} provides a snapshot of the dashboard prototype, where the sentiment index trend line is
+shown alongside a table of recent high-sentiment headlines. The UI emphasizes clarity and immediacy, using
+visual cues (green for positive, red for negative) to highlight sentiment changes. We also implement basic
+error handling and status indicators (for example, if an API call fails or if no data is available for a
+given query, the UI displays a message so the user is aware of the system state).
+
+Throughout the implementation, a priority was placed on modularity and extensibility. New data sources (for
+example, Twitter or StockTwits) could be added by writing a new adapter that conforms to the same interface.
+Likewise, the sentiment model can be swapped out or upgraded (for instance, if a newer finance-specific LLM
+becomes available) with minimal changes to the surrounding code, thanks to the abstraction of the
+\texttt{/analyze} API route. The use of Flask and React for the prototype proved sufficient for our needs;
+Flask can comfortably handle the moderate request load of our polling mechanism, and React enables dynamic
+updates and interactive visualizations in the browser.
+
+\begin{figure}[h]
+  \centering
+  \textit{Placeholder figure to be replaced with an actual screenshot}
+  \caption{Prototype of the web-based dashboard UI. The interface includes (left) a line chart showing the
+           computed sentiment index over time for a selected stock, and (right) a summary of recent
+           posts/news with their individual sentiment classifications (green for positive, red for negative,
+           gray for neutral). Users can input different tickers or topics to refresh the analysis.}
+  \label{fig:ui}
+\end{figure}
+
 
 \section{Results}
+At this stage of the project, data collection and integration are ongoing, so we present an outline of the
+expected results and how we plan to analyze them. The evaluation of our system will be primarily qualitative
+and exploratory, given that we do not have a labeled “ground truth” for real-time market sentiment. Key
+results will revolve around visualizing sentiment trends, comparing sources, and assessing the FinBERT
+model's outputs. We anticipate the following findings and will include corresponding charts and tables in
+the final report:
+
+\begin{enumerate}
+  \item \textbf{Sentiment Trend Visualization:} We will present time-series plots of the computed sentiment
+        index for a particular financial instrument or topic over various time windows (e.g., intraday,
+        daily, weekly). For example, Figure~\ref{fig:timeline} will show the sentiment index for a chosen
+        stock (say, Tesla) over a multi-day period. These charts will illustrate how sentiment fluctuates in
+        response to market events, news releases, or social media activity. For example, we expect to see
+        spikes in negative sentiment during market sell-offs or positive sentiment following favorable
+        earnings reports. By examining these patterns, we can demonstrate the system's ability to capture
+        market mood dynamics. In the final thesis, we plan to highlight a couple of specific case studies
+        where the sentiment timeline clearly reflected an important market narrative, thereby showcasing the
+        dashboard's practical relevance.
+
+  \begin{figure}[h!]
+    \centering
+    \textit{Placeholder for sentiment index timeline visualization}
+    \caption{Example sentiment index timeline for a selected stock over one week. The y-axis
+            represents the aggregated sentiment score (positive or negative tilt), and the x-axis is time
+            (days). Notable external events (earnings release, major news) are annotated to show alignment
+            with sentiment spikes.}
+    \label{fig:timeline}
+  \end{figure}
+
+  \item \textbf{Source Comparison Analysis:} We will analyze and compare sentiment distributions
+        between news articles and social media posts. Table~\ref{tab:source-breakdown} illustrates the kind
+        of summary we will provide. We hypothesize that social media may exhibit more extreme sentiment
+        swings (due to retail investor enthusiasm or panic) compared to the more measured tone of news media.
+        Statistical summaries (e.g., mean sentiment scores, variance) will quantify these differences.
+
+  \begin{table}[h!]
+    \centering
+    \textit{Placeholder for source-wise sentiment breakdown table}
+    \caption{This table will list, for a given period, the number of items from each source (News vs. Reddit),
+            and the percentage of those items labeled as Positive, Neutral, or Negative by FinBERT. It will
+            also include the average sentiment score per source. An example (for illustration only) might be:
+            {\small News: 40 articles (15\% pos, 70\% neutral, 15\% neg, avg score = 0.0); Reddit: 120 posts
+            (25\% pos, 50\% neutral, 25\% neg, avg score = 0.0).}}
+    \label{tab:source-breakdown}
+  \end{table}
+
+  \item \textbf{Model Output Assessment:} We will examine the reliability and characteristics of the FinBERT
+        model's outputs on our collected data. Although we cannot directly measure accuracy without labeled
+        test data, we can analyze proxies for reliability. One analysis will involve checking the
+        distribution of predicted labels. If we find, for instance, that an overwhelmingly high percentage of
+        items are labeled “Neutral,” it might indicate that FinBERT is defaulting to neutral in uncertain
+        cases (which could dampen the sensitivity of our index). Conversely, a balanced or contextually
+        appropriate distribution (e.g., more negatives on a day of bad news) would build confidence in the
+        model's usefulness. We may include a chart showing the proportion of each sentiment class in a
+        volatile period versus a calm period to illustrate that the model's output varies with market
+        conditions (which it should if it's capturing real sentiment).\newline
+        Additionally, we plan a qualitative assessment: manually reading a sample of texts alongside the
+        model's label to subjectively judge correctness. Early informal tests suggest FinBERT is quite adept
+        with straightforward cases (it correctly labels headlines like ``Stocks soar after earnings beat'' as
+        positive, and ``Company X faces fraud allegations'' as negative). However, it can be challenged by
+        sarcasm or figurative language in social posts - a known difficulty for sentiment models
+        \cite{SentimentEmotionSurvey2021}. We will document any systematic errors observed (for example,
+        finance slang that confuses the model, or instances where context was missed) and may update our
+        preprocessing or handling of model confidence accordingly.
+\end{enumerate}
+
+\section{Discussion}
+The discussion will interpret our findings and position them in the context of prior work and the broader
+goals of the project. Assuming the results align with expectations, several points of analysis will be
+explored:
+
+\begin{enumerate}
+  \item \textbf{Relationship to prior work:}
+  \item \textbf{System Strengths:}
+  \item \textbf{Implications for investors and analysts:}
+  \item \textbf{Limitations of the current system:}
+  \item \textbf{Potential improvements and future directions:}
+\end{enumerate}
+
+In conclusion to the discussion, we will tie everything back to the thesis statement: our real-time sentiment
+dashboard demonstrates a practical fusion of NLP and finance, highlights the value of domain-specific models
+like FinBERT in extracting actionable insight from text, and offers a foundation that future work can build
+upon to deepen the integration of alternative data (like textual sentiment) into market analysis tools.9090
 
 \section{Conclusion}
+In summary, this study has developed a framework for leveraging transformer-based sentiment analysis in the
+context of financial markets. We designed and implemented a real-time dashboard that aggregates sentiment
+from both news media and social media, providing a nuanced “market mood” indicator for investors and
+analysts. By utilizing FinBERT, a language model tailored to finance, our system can understand
+domain-specific chatter and news with greater fidelity than generic sentiment tools. The expected outcome is
+a tool that not only visualizes sentiment trends in an intuitive way but also bridges a gap between
+cutting-edge NLP techniques and practical financial analytics.
+
+This work contributes an integrated approach that marries multiple data sources and advanced AI in a
+real-time application. The modular design means it can be continually updated: new data feeds and improved
+models can be incorporated as the landscape evolves. In its current form, the dashboard serves as a
+proof-of-concept for how unstructured textual data might be harnessed for market insight, aligning with a
+growing industry trend of using alternative data in finance.
+
+For future work, there are several promising directions. One immediate extension would be to expand the
+coverage of the system - for example, including Twitter data or transcripts of earnings calls to capture even
+more facets of market sentiment. Another avenue is to refine the sentiment analysis itself, perhaps by
+fine-tuning the model on a larger, more recent corpus of financial discussions (or employing prompt-based
+large language models for greater nuance). There is also potential to quantitatively evaluate the predictive
+value of the sentiment index by correlating it with subsequent market movements, thus moving from nowcasting
+towards forecasting. Ultimately, we envision that efforts like this project can evolve into robust tools that
+assist investors by flagging early signs of optimism or fear in the market. In conclusion, the project
+underscores the value of interdisciplinary approaches - combining NLP, data engineering, and finance - to
+innovate in understanding and visualizing the complex emotional undercurrents that drive economic behavior.
+We hope this study lays groundwork for more sophisticated sentiment-driven analytics in the financial domain,
+and we have outlined several improvements that can be pursued to enhance both the accuracy and utility of
+such systems in the future.
+
 
 \bibliographystyle{acm}
 \bibliography{bibliography.bib}
