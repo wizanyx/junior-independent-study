@@ -263,8 +263,8 @@ browser. The overall software architecture is service-oriented: the Flask API en
 the React frontend fetches and renders. Figure~\ref{fig:ui} shows a prototype of the user
 interface, including charts for sentiment trends and controls for the user to select different stock tickers or time ranges.
 
-On the backend, we implemented dedicated ingestion adapters for each data source. \textit{Expand this later
-when adapters are implemented}.
+On the backend, we implemented dedicated ingestion adapters for each data source.
+\textit{Expand this later when adapters are implemented}.
 
 Both adapters feed incoming text to a preprocessing pipeline. Implemented in Python, this pipeline cleans and
 normalizes text as described in the methodology. Specifically, we remove URLs, user mentions, and markup from
@@ -306,9 +306,9 @@ updates and interactive visualizations in the browser.
   \centering
   \textit{Placeholder figure to be replaced with an actual screenshot}
   \caption{Prototype of the web-based dashboard UI. The interface includes (left) a line chart showing the
-           computed sentiment index over time for a selected stock, and (right) a summary of recent
-           posts/news with their individual sentiment classifications (green for positive, red for negative,
-           gray for neutral). Users can input different tickers or topics to refresh the analysis.}
+    computed sentiment index over time for a selected stock, and (right) a summary of recent
+    posts/news with their individual sentiment classifications (green for positive, red for negative,
+    gray for neutral). Users can input different tickers or topics to refresh the analysis.}
   \label{fig:ui}
 \end{figure}
 
@@ -333,15 +333,15 @@ the final report:
         where the sentiment timeline clearly reflected an important market narrative, thereby showcasing the
         dashboard's practical relevance.
 
-  \begin{figure}[h!]
-    \centering
-    \textit{Placeholder for sentiment index timeline visualization}
-    \caption{Example sentiment index timeline for a selected stock over one week. The y-axis
+        \begin{figure}[h!]
+          \centering
+          \textit{Placeholder for sentiment index timeline visualization}
+          \caption{Example sentiment index timeline for a selected stock over one week. The y-axis
             represents the aggregated sentiment score (positive or negative tilt), and the x-axis is time
             (days). Notable external events (earnings release, major news) are annotated to show alignment
             with sentiment spikes.}
-    \label{fig:timeline}
-  \end{figure}
+          \label{fig:timeline}
+        \end{figure}
 
   \item \textbf{Source Comparison Analysis:} We will analyze and compare sentiment distributions
         between news articles and social media posts. Table~\ref{tab:source-breakdown} illustrates the kind
@@ -349,16 +349,16 @@ the final report:
         swings (due to retail investor enthusiasm or panic) compared to the more measured tone of news media.
         Statistical summaries (e.g., mean sentiment scores, variance) will quantify these differences.
 
-  \begin{table}[h!]
-    \centering
-    \textit{Placeholder for source-wise sentiment breakdown table}
-    \caption{This table will list, for a given period, the number of items from each source (News vs. Reddit),
-            and the percentage of those items labeled as Positive, Neutral, or Negative by FinBERT. It will
-            also include the average sentiment score per source. An example (for illustration only) might be:
-            {\small News: 40 articles (15\% pos, 70\% neutral, 15\% neg, avg score = 0.0); Reddit: 120 posts
-            (25\% pos, 50\% neutral, 25\% neg, avg score = 0.0).}}
-    \label{tab:source-breakdown}
-  \end{table}
+        \begin{table}[h!]
+          \centering
+          \textit{Placeholder for source-wise sentiment breakdown table}
+          \caption{This table will list, for a given period, the number of items from each source (News vs. Reddit),
+          and the percentage of those items labeled as Positive, Neutral, or Negative by FinBERT. It will
+          also include the average sentiment score per source. An example (for illustration only) might be:
+          {\small News: 40 articles (15\% pos, 70\% neutral, 15\% neg, avg score = 0.0); Reddit: 120 posts
+          (25\% pos, 50\% neutral, 25\% neg, avg score = 0.0).}}
+          \label{tab:source-breakdown}
+        \end{table}
 
   \item \textbf{Model Output Assessment:} We will examine the reliability and characteristics of the FinBERT
         model's outputs on our collected data. Although we cannot directly measure accuracy without labeled

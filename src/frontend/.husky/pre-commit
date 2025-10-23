@@ -1,6 +1,44 @@
+# Fail fast on first error
+set -e
+
+# Change to repo root to make relative paths stable regardless of invocation cwd
+REPO_ROOT=$(git rev-parse --show-toplevel)
+cd "$REPO_ROOT"
+
+# Initialize nvm (if available) so npm is on PATH in non-interactive shells
+export NVM_DIR="$HOME/.nvm"
+if [ -s "$NVM_DIR/nvm.sh" ]; then
+	# shellcheck source=/dev/null
+	. "$NVM_DIR/nvm.sh" >/dev/null 2>&1
+	if command -v nvm >/dev/null 2>&1; then
+		if [ -f .nvmrc ]; then
+			nvm use --silent >/dev/null 2>&1 || true
+		else
+			nvm use default --silent >/dev/null 2>&1 || true
+		fi
+	fi
+fi
+
+# Require Poetry for backend checks
+if ! command -v poetry >/dev/null 2>&1; then
+	echo "[husky] ERROR: 'poetry' is required for backend checks but was not found in PATH."
+	echo "[husky] Follow development setup instructions in src/README.md."
+	exit 1
+fi
+
 cd src/backend
 poetry run pre-commit run --hook-stage pre-commit
 
 cd ../frontend
-npm test
-npx lint-staged
+# Require npm for frontend checks (fail if missing)
+if ! command -v npm >/dev/null 2>&1; then
+	echo "[husky] ERROR: 'npm' is required for frontend checks but was not found in PATH."
+	echo "[husky] Follow development setup instructions in src/README.md."
+	exit 1
+fi
+
+# Run tests once (avoid watch mode)
+npm test --silent -- --run
+
+# Lint and format only staged files
+npx --no-install lint-staged

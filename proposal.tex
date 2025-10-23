@@ -65,10 +65,10 @@ results in a clear, interactive dashboard, including aggregate sentiment metrics
 and confidence estimates. The pipeline flow is illustrated in Figure \ref{fig:system-logic}.
 
 \begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.9\textwidth]{system-logic.png}
-    \caption{System architecture for the Finance Sentiment Dashboard.}
-    \label{fig:system-logic}
+  \centering
+  \includegraphics[width=0.9\textwidth]{system-logic.png}
+  \caption{System architecture for the Finance Sentiment Dashboard.}
+  \label{fig:system-logic}
 \end{figure}
 
 By combining academic rigor with practical functionality, this project will contribute both to scholarly
@@ -85,38 +85,38 @@ economic phenomenon.
 A concise list of features / user stories in the order in which they will be built.
 
 \begin{itemize}
-    \item Set up the foundational project environment for backend (Flask) and frontend (React),
-          including code quality tools, base tests, and optional CI workflow.
-    \item Configure environment variables and secrets for API keys and external service access.
-    \item Define and enforce a common document schema for all ingested and uploaded texts across
-          adapters and APIs.
-    \item Implement a preprocessing pipeline for text cleaning, deduplication, and mapping to ticker
-          symbols.
-    \item Integrate the FinBERT model to perform financial sentiment inference on text data.
-    \item Add a backend endpoint for analyzing pasted text and returning sentiment results.
-    \item Add a backend endpoint for analyzing uploaded CSV files and returning sentiment results.
-    \item Develop a news ingestion adapter to fetch recent financial headlines for given tickers.
-    \item Develop a Reddit/StockTwits ingestion adapter to collect ticker-specific posts.
-    \item Create an aggregation module to compute sentiment metrics (mean score, percent positive,
-          volume, positive/negative ratio).
-    \item Implement an explainability endpoint that returns token-level sentiment highlights for model
-          predictions.
-    \item Develop REST API endpoints for metrics, posts, explanations, and system health monitoring.
-    \item Build the core React dashboard with ticker input, source toggles, KPI displays, sentiment
-          chart, and top posts list.
-    \item Add frontend flows for paste-text and file upload sentiment analysis.
-    \item Implement user experience states such as loading, empty view, and error handling in the
-          frontend.
-    \item Containerize both backend and frontend using Docker and supply a Compose file for local
-          deployment.
-    \item (\textbf{Stretch Goal}) Implement a scheduler and caching mechanism to periodically refresh
-          and store sentiment results in memory.
-    \item (\textbf{Stretch Goal}) Add a persistent storage layer for texts, sentiment scores, and
-          aggregated metrics.
-    \item (\textbf{Stretch Goal}) Add a live stock price overlay to the sentiment time-series chart in
-          the dashboard.
-    \item (\textbf{Stretch Goal}) Develop a prototype predictive model that combines sentiment features
-          with price baselines for short-term forecasting.
+  \item Set up the foundational project environment for backend (Flask) and frontend (React),
+        including code quality tools, base tests, and optional CI workflow.
+  \item Configure environment variables and secrets for API keys and external service access.
+  \item Define and enforce a common document schema for all ingested and uploaded texts across
+        adapters and APIs.
+  \item Implement a preprocessing pipeline for text cleaning, deduplication, and mapping to ticker
+        symbols.
+  \item Integrate the FinBERT model to perform financial sentiment inference on text data.
+  \item Add a backend endpoint for analyzing pasted text and returning sentiment results.
+  \item Add a backend endpoint for analyzing uploaded CSV files and returning sentiment results.
+  \item Develop a news ingestion adapter to fetch recent financial headlines for given tickers.
+  \item Develop a Reddit/StockTwits ingestion adapter to collect ticker-specific posts.
+  \item Create an aggregation module to compute sentiment metrics (mean score, percent positive,
+        volume, positive/negative ratio).
+  \item Implement an explainability endpoint that returns token-level sentiment highlights for model
+        predictions.
+  \item Develop REST API endpoints for metrics, posts, explanations, and system health monitoring.
+  \item Build the core React dashboard with ticker input, source toggles, KPI displays, sentiment
+        chart, and top posts list.
+  \item Add frontend flows for paste-text and file upload sentiment analysis.
+  \item Implement user experience states such as loading, empty view, and error handling in the
+        frontend.
+  \item Containerize both backend and frontend using Docker and supply a Compose file for local
+        deployment.
+  \item (\textbf{Stretch Goal}) Implement a scheduler and caching mechanism to periodically refresh
+        and store sentiment results in memory.
+  \item (\textbf{Stretch Goal}) Add a persistent storage layer for texts, sentiment scores, and
+        aggregated metrics.
+  \item (\textbf{Stretch Goal}) Add a live stock price overlay to the sentiment time-series chart in
+        the dashboard.
+  \item (\textbf{Stretch Goal}) Develop a prototype predictive model that combines sentiment features
+        with price baselines for short-term forecasting.
 \end{itemize}
 
 
