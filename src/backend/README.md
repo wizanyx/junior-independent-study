@@ -140,6 +140,39 @@ Implementation:
 - The canonical dataclass lives at `app/schema.py` as `Document`.
 - Adapters should return data in their native format and then convert to `Document` via `Document.from_adapter(adapter_name, payload)` or construct via `Document.from_dict(...)` before handing data to the preprocessing and inference pipelines.
 
+## Preprocessing pipeline
+
+The preprocessing pipeline (in `app/preprocess.py`) accepts canonical Document objects (or dicts compatible with Document.from_dict)
+and runs them through a sequence of steps. Each step receives a Document and returns either a modified Document or None
+to indicate the document should be dropped.
+
+- Steps available:
+   - `normalize_whitespace`: collapse whitespace and trim.
+   - `drop_empty_text(min_len=1)`: drop docs with empty/too-short text (post-trim).
+   - `truncate_text(max_len)`: cap text length.
+   - `deduplicate_by_text()`: drop subsequent docs with the same text key.
+   - `uppercase_ticker_if_present`: normalizes ticker to uppercase (note: redundant with `Document.__post_init__`, kept for pipelines that operate on existing `Document` instances).
+
+- Default pipeline (`default_pipeline(max_text_length=5000)`):
+   1) normalize_whitespace → 2) drop_empty_text → 3) truncate_text → 4) deduplicate_by_text
+
+   Deduplication runs after truncation by design, so duplicates are detected on the normalized, truncated body. If you need dedupe on full normalized text, build a custom `Pipeline` and place `deduplicate_by_text()` before `truncate_text`.
+
+- Usage:
+
+```python
+from app.preprocess import default_pipeline
+
+pl = default_pipeline(max_text_length=5000)
+docs = pl.process_many([
+      {"source": "news", "text": "  Apple  beats\n\t earnings   ", "ticker": "aapl"},
+      {"source": "news", "text": "Apple beats earnings", "ticker": "AAPL"},
+])
+# -> one normalized, deduplicated Document
+```
+
+You can compose your own pipeline by passing a list of steps to `Pipeline([...])`.
+
 ## CORS
 
 CORS is configured via `flask-cors` and allowed origins come from `CORS_ALLOWED_ORIGINS`. Use a comma-separated list for multiple origins.
