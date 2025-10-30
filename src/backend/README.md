@@ -11,19 +11,26 @@ This is the backend service for the Finance Sentiment Dashboard project. It leve
 - CORS enabled via `flask-cors`
 - Robust code quality via Poetry, Ruff, Mypy, Pytest, pytest-cov, and pre-commit
 
-## Project Structure
+## Project structure (key files)
+
+This is an illustrative, non-exhaustive view to orient contributors:
 
 ```
 src/backend/
-├── app/                        # Backend application code (Flask)
-│   ├── __init__.py             # App factory, routes (e.g., /health)
-│   └── config.py               # Settings loaded from .env
+├── app/                        # Flask app code
+│   ├── __init__.py             # App factory and routes (e.g., /health)
+│   ├── __main__.py             # CLI entrypoint: `python -m app`
+│   ├── config.py               # Settings loaded from .env
+│   └── schema.py               # Canonical Document schema and (de)serialization
 ├── tests/                      # Test suite
-│   ├── __init__.py
-│   └── app_test.py
+│   ├── app_test.py
+│   ├── config_test.py
+│   └── main_test.py
+├── .pre-commit-config.yaml     # Lint/format/type hooks
 ├── .env.example                # Example environment variables
-├── poetry.lock                 # Poetry dependency lockfile
-└── pyproject.toml              # Project metadata and dependencies
+├── pyproject.toml              # Project metadata and dependencies
+├── poetry.lock                 # Poetry lockfile
+└── requirements.txt            # Exported deps for non-Poetry installs
 ```
 
 ## Environment
@@ -65,7 +72,7 @@ Response JSON includes: `status`, `env`, `enabled_sources`, `default_window_hour
 1. **Install dependencies:**
 
    ```sh
-   poetry install
+   poetry install --with dev
    ```
 
 2. **Set up pre-commit hooks:**
@@ -99,6 +106,39 @@ Response JSON includes: `status`, `env`, `enabled_sources`, `default_window_hour
    poetry run pytest --cov=app --cov-report=term-missing --cov-report=html
    # View HTML report at htmlcov/index.html
    ```
+
+## Data model: Document
+
+We use a single canonical `Document` schema (see `app/schema.py`) to represent all ingested and uploaded text documents. This ensures adapters and the preprocessing pipeline operate on a predictable structure.
+
+- id (str): unique identifier for the document. UUID4 Auto-generated if omitted or falsy.
+- source (str): origin of the document (e.g., `news`, `reddit`, `upload`).
+- ticker (str | null): optional ticker symbol (stored uppercase) associated with the document.
+- created_at (datetime): internally stored as a timezone-aware UTC datetime and serialized as an ISO8601 UTC string with `Z` suffix like `2025-01-01T12:00:00.000000Z`.
+- text (str): the text body to be analyzed (required).
+- permalink (str | null): optional URL linking back to the original item.
+
+Example JSON representation returned by the API or `Document.to_dict()`:
+
+```json
+{
+   "id": "550e8400-e29b-41d4-a716-446655440000",
+   "source": "news",
+   "ticker": "AAPL",
+   "created_at": "2025-01-01T12:00:00.000000Z",
+   "text": "Apple shares rallied after earnings beat...",
+   "permalink": "https://example.com/article/123"
+}
+```
+
+Notes
+- Input parsing accepts `created_at` as either an ISO8601 string (with `Z` or offset) or a `datetime`. Values are normalized to UTC.
+- If `id` is provided but empty, a new UUID will be generated during initialization.
+- Missing or empty `source`/`text` will raise `ValueError` at validation time.
+
+Implementation:
+- The canonical dataclass lives at `app/schema.py` as `Document`.
+- Adapters should return data in their native format and then convert to `Document` via `Document.from_adapter(adapter_name, payload)` or construct via `Document.from_dict(...)` before handing data to the preprocessing and inference pipelines.
 
 ## CORS
 
