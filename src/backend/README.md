@@ -49,6 +49,12 @@ Key variables (see `.env.example` for defaults):
 - `ENABLE_SOURCES` (default `news,reddit`)
 - `NEWS_API_KEY`, `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`, `REDDIT_USER_AGENT`
 
+Model / inference configuration
+- `USE_MOCK_MODEL` (default `true`): Controls whether the lightweight deterministic mock sentiment service is used. Keep this `true` for local development and tests. Set to `false` to load a real Hugging Face model.
+- `MODEL_NAME` (default `yiyanghkust/finbert-tone`): Hugging Face model identifier to load when `USE_MOCK_MODEL=false`.
+- `MODEL_DEVICE` (default `cpu`): Pipeline device selection; accepts `cpu`, `auto`, `cuda:0`, numeric GPU index, or `-1`.
+- `MODEL_BATCH_SIZE` (default `16`): Default batch size for inference.
+
 Settings are loaded via `python-dotenv` and `app/config.py` computes `enabled_sources` based on provided credentials.
 
 ## Installation (End Users)
@@ -66,6 +72,36 @@ Health check:
 curl http://localhost:8000/health
 ```
 Response JSON includes: `status`, `env`, `enabled_sources`, `default_window_hours`.
+
+API
+- GET /health
+  - Returns basic server status and configuration metadata.
+
+- POST /sentiment
+  - Batch sentiment inference endpoint.
+  - Request body: JSON array of objects compatible with `Document.from_dict()` (minimally each object must include "source" and "text").
+    Example:
+    [
+      {"source": "upload", "text": "Apple stock surges after earnings beat", "ticker": "AAPL"}
+    ]
+  - Response: JSON array of results (one element per input document) with the following shape:
+    {
+      "id": "<document-id-or-null>",
+      "label": "positive" | "neutral" | "negative",
+      "scores": {"positive": 0.7, "neutral": 0.2, "negative": 0.1}
+    }
+
+Example curl (Linux / macOS):
+
+```sh
+curl -X POST http://127.0.0.1:8000/sentiment \
+  -H "Content-Type: application/json" \
+  -d '[{"source":"upload","text":"Apple stock surges after earnings beat","ticker":"AAPL"}]'
+```
+
+Notes:
+- The default development/test configuration uses the Mock sentiment service (`USE_MOCK_MODEL=true`) so you can run the server without installing large ML dependencies.
+- When `USE_MOCK_MODEL=false` the server will attempt to load the HF model specified by `MODEL_NAME`. Ensure you have network access and the appropriate packages installed (see below).
 
 ## Developer Setup
 

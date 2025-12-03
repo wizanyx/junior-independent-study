@@ -19,6 +19,21 @@ def _split_csv(s: str | None) -> list[str]:
     return [x.strip().lower() for x in s.split(",") if x.strip()]
 
 
+def _to_bool(val: str | None, default: bool = False) -> bool:
+    """Parse common truthy/falsey strings from env vars.
+
+    Accepts: 1/0, true/false, yes/no, on/off (case-insensitive). Falls back to default.
+    """
+    if val is None:
+        return default
+    v = val.strip().lower()
+    if v in {"1", "true", "yes", "y", "on"}:
+        return True
+    if v in {"0", "false", "no", "n", "off"}:
+        return False
+    return default
+
+
 @dataclass
 class Settings:
     # Flask
@@ -45,6 +60,17 @@ class Settings:
     reddit_client_id: str | None = os.getenv("REDDIT_CLIENT_ID") or None
     reddit_client_secret: str | None = os.getenv("REDDIT_CLIENT_SECRET") or None
     reddit_user_agent: str | None = os.getenv("REDDIT_USER_AGENT") or None
+
+    # Model / Inference
+    # Default to using a lightweight mock for local development/tests.
+    # Set USE_MOCK_MODEL=0/false to enable real model loading.
+    use_mock_model: bool = _to_bool(os.getenv("USE_MOCK_MODEL"), True)
+    # Default FinBERT-like model — configurable via MODEL_NAME env var.
+    model_name: str = os.getenv("MODEL_NAME", "yiyanghkust/finbert-tone")
+    # Accept "cpu", "auto", "cuda:0", numeric index "0", or "-1" for CPU.
+    # "auto" will pick GPU if available (requires torch).
+    model_device: str = os.getenv("MODEL_DEVICE", "cpu")
+    model_batch_size: int = int(os.getenv("MODEL_BATCH_SIZE", "16"))
 
     # Derived
     enabled_sources: list[str] = field(default_factory=list)
@@ -77,6 +103,40 @@ class Settings:
         # You can add more (stocktwits, twitter, etc.) with the same pattern.
         self.enabled_sources = enabled
 
+    def pipeline_device_index(self) -> int:
+        """Return an int device index suitable for transformers.pipeline:
+        -1 => CPU, 0..N => CUDA device index.
+
+        Accepts model_device values:
+          - 'cpu' or '-1' => -1
+          - 'auto' => 0 if torch.cuda.is_available() else -1
+          - 'cuda' or 'cuda:0' or 'cuda:1' => numeric index
+          - '0' or '1' => numeric index (interpreted as GPU index)
+        """
+        val = (self.model_device or "").strip().lower()
+        if val in ("", "auto"):
+            # 'auto' behavior: try to use GPU if available
+            try:
+                import torch  # type: ignore
+            except Exception:
+                return -1
+            return (
+                0 if getattr(torch, "cuda", None) and torch.cuda.is_available() else -1
+            )
+        if val in ("cpu", "-1"):
+            return -1
+        if val.startswith("cuda"):
+            parts = val.split(":")
+            try:
+                return int(parts[1]) if len(parts) > 1 else 0
+            except Exception:
+                return 0
+        # numeric string
+        try:
+            return int(val)
+        except Exception:
+            return -1
+
 
 def get_settings() -> Settings:
     s = Settings()
@@ -88,5 +148,14 @@ def get_settings() -> Settings:
         s.api_port,
         ",".join(s.enabled_sources) or "(none)",
         s.default_window_hours,
+    )
+    log.info(
+        "Model config | use_mock=%s | name=%s | device=%s "
+        "(pipeline_index=%s) | batch=%s",
+        s.use_mock_model,
+        s.model_name,
+        s.model_device,
+        s.pipeline_device_index(),
+        s.model_batch_size,
     )
     return s
