@@ -40,6 +40,8 @@ behind events such as the GameStop short squeeze in early 2021, where coordinate
 WallStreetBets forum helped fuel extreme volatility in GameStop's stock price~\cite{Desiderio_2025}. This
 project's significance lies in bridging advances in natural language processing with financial analytics to
 capture such phenomena.
+Accordingly, this thesis presents the design and implementation of such a nowcasting dashboard, and outlines
+its anticipated contributions to financial market analysis.
 
 \section{Background}
 \subsection{Natural Language Processing and Sentiment Analysis.}
@@ -98,8 +100,8 @@ learning biased associations from training data) and how well models generalize 
 \cite{SentimentEmotionSurvey2021}. Notably, the financial domain presents a unique context: language in
 analyst reports, news headlines, or trader chats can be very domain-specific, filled with jargon and phrases
 that are rare in general text corpora. A general-purpose model might misinterpret or simply not understand
-such domain-specific language. This gap has led researchers to pursue domain adaptation strategies
----tailoring NLP models specifically for finance.
+such domain-specific language. This gap has led researchers to pursue domain adaptation
+strategies---tailoring NLP models specifically for finance.
 
 \subsection{FinBERT and Domain-Specific Modeling}
 One pivotal development in this regard was the creation of \textbf{FinBERT} by Araci (2019)~
@@ -264,7 +266,14 @@ the React frontend fetches and renders. Figure~\ref{fig:ui} shows a prototype of
 interface, including charts for sentiment trends and controls for the user to select different stock tickers or time ranges.
 
 On the backend, we implemented dedicated ingestion adapters for each data source.
-\textit{Expand this later when adapters are implemented}.
+\textit{Current plan, not implemented yet:}
+Specifically, one adapter handles retrieving relevant news articles while another collects data from social
+media. For news, we connect to a financial news API or RSS feed to fetch the latest headlines and snippets
+related to the user's query. For social media, we use Reddit's API (via a Python wrapper) to gather recent
+posts from finance-focused communities (e.g., \texttt{r/WallStreetBets}) that mention the query. These
+adapters run as separate asynchronous tasks, allowing concurrent data collection from both sources in near
+real-time. We also apply basic rate-limiting (e.g., fetching updates every minute) to avoid overwhelming any
+single source.
 
 Both adapters feed incoming text to a preprocessing pipeline. Implemented in Python, this pipeline cleans and
 normalizes text as described in the methodology. Specifically, we remove URLs, user mentions, and markup from
@@ -311,7 +320,6 @@ updates and interactive visualizations in the browser.
     gray for neutral). Users can input different tickers or topics to refresh the analysis.}
   \label{fig:ui}
 \end{figure}
-
 
 \section{Results}
 At this stage of the project, data collection and integration are ongoing, so we present an outline of the
@@ -381,22 +389,80 @@ the final report:
 \end{enumerate}
 
 \section{Discussion}
-The discussion will interpret our findings and position them in the context of prior work and the broader
-goals of the project. Assuming the results align with expectations, several points of analysis will be
-explored:
+With results still preliminary, we discuss how the expected findings relate to prior research and the broader
+goals of the project. Several key aspects of the analysis are considered:
 
 \begin{enumerate}
-  \item \textbf{Relationship to prior work:}
-  \item \textbf{System Strengths:}
-  \item \textbf{Implications for investors and analysts:}
-  \item \textbf{Limitations of the current system:}
-  \item \textbf{Potential improvements and future directions:}
+  \item \textbf{Relationship to prior work:} The outcomes of our project align with several trends documented
+        in prior literature. Our use of FinBERT, for instance, leverages Araci's (2019) insight that a
+        domain-specific language model can outperform generic models in financial sentiment tasks~
+        \cite{araci2019finbert}. Consistent with Jiang and Zeng's findings~
+        \cite{jiang2025financialsentiment}, we expect that FinBERT's specialized understanding of finance
+        terminology will yield more relevant sentiment signals than a one-size-fits-all approach. Moreover,
+        the concept of aggregating sentiment from multiple sources resonates with studies that have
+        emphasized the value of alternative data in market analysis. For example, Xing et al.~
+        \cite{10.1109/MCI.2018.2866727} successfully incorporated a sentiment index into an investment
+        strategy, supporting the notion that textual sentiment can provide unique predictive insights. Our
+        real-time dashboard builds on these foundations, translating prior research findings into an
+        integrated, practical tool.
+  \item \textbf{System Strengths:} Our system offers several notable strengths. First, by fusing multiple
+        data sources (news and social media) in real time, it captures a more holistic view of market
+        sentiment than single-source analyses. This dual-source approach allows us to detect signals that
+        might appear in one channel but not the other, giving a broader situational awareness. Second, the
+        use of FinBERT imbues the system with domain-specific intelligence—financial jargon and context that
+        might confound a generic model are accurately interpreted, which improves classification reliability.
+        The system's modular, service-oriented architecture is also a strength: it ensures scalability and
+        flexibility. New information sources (e.g., other forums or data streams) can be integrated with
+        minimal changes, and the sentiment analysis component can be upgraded (for instance, swapping in a
+        newer model) without rebuilding the entire pipeline. Finally, the dashboard interface emphasizes
+        clarity, translating complex analytics into intuitive visualizations that allow users to grasp
+        sentiment trends at a glance. These strengths collectively make the platform robust for continuous
+        deployment in a dynamic environment like finance.
+  \item \textbf{Implications for investors and analysts:} Myriad practical applications emerge from our
+        sentiment nowcasting tool. For investors and market analysts, the dashboard can serve as an early
+        warning system or a confirmatory signal for market moves. A sudden surge in negative sentiment across
+        news and social channels, for instance, might precede a broader sell-off or indicate growing fear in
+        the market—information that could prompt a portfolio manager to adopt a more defensive stance.
+        Conversely, an uptick in optimistic chatter around a particular stock or sector might flag an
+        emerging opportunity (or a risk of a hype-fueled bubble) that merits closer investigation. By
+        quantifying and visualizing crowd psychology, the system provides an additional layer of insight
+        beyond traditional market indicators. This aligns with observations from events like the GameStop
+        short squeeze, where monitoring online forums such as \texttt{r/WallStreetBets} could have revealed
+        the brewing momentum behind the price surge~\cite{Desiderio_2025}. In essence, our tool bridges
+        qualitative sentiment and quantitative analysis, helping decision-makers incorporate the human factor
+        into their strategies.
+  \item \textbf{Limitations of the current system:} Our prototype has some clear limitations. One is the
+        scope of data: the analysis is currently restricted to Reddit and a single news source, leaving out
+        other influential platforms (e.g., Twitter, financial blogs) and limiting the breadth of market
+        coverage. This means the sentiment index might not fully represent the entire investor community at
+        any given time. Another limitation is the reliance on FinBERT without further tuning; while effective
+        generally, the model may miss new slang or nuanced sarcasm in social media posts—a known challenge
+        for sentiment models \cite{SentimentEmotionSurvey2021}. This can lead to misclassifications or a bias
+        toward “neutral” labels in uncertain cases. Additionally, because we lack ground-truth sentiment
+        labels for real market data, it is difficult to quantitatively assess the accuracy of our
+        classifications; our evaluation remains largely qualitative. The real-time nature of the system also
+        presents practical challenges: network delays, API rate limits, or data outages could disrupt the
+        analysis stream. Finally, as a proof-of-concept, the current implementation is not optimized for
+        large-scale deployment; significant engineering effort would be needed to handle higher data volumes
+        or to integrate the tool into live trading workflows. These limitations should be kept in mind when
+        interpreting the results and point to avenues for improvement.
+  \item \textbf{Potential improvements and future directions:} Building on the above limitations, there are
+        several directions for future enhancement. First, expanding the range of data sources would make the
+        sentiment index more comprehensive. Integrating additional platforms—such as Twitter, other finance
+        forums, or even transcripts of earnings calls—could capture sentiment signals that our current
+        Reddit-and-news focus might miss. Second, the sentiment analysis model can be refined. Future work
+        could involve fine-tuning FinBERT on more recent and diverse financial texts to keep up with evolving
+        language, or experimenting with state-of-the-art models (including large language models in a
+        prompt-based setup) to improve classification nuance. Another important step is to rigorously
+        evaluate the system's predictive value. For example, we could analyze how changes in our sentiment
+        index correlate with subsequent market movements (e.g., next-day stock volatility or returns) to
+        determine if the sentiment signals have forecasting power. If such correlations prove strong, the
+        tool could be extended beyond nowcasting to actually aid in market forecasting. Finally, user-facing
+        improvements like alert mechanisms for extreme sentiment shifts or more granular filtering options
+        (by sector, asset type, etc.) could increase the tool's practical utility. Pursuing these
+        improvements would significantly enhance the system's accuracy, robustness, and real-world
+        applicability.
 \end{enumerate}
-
-In conclusion to the discussion, we will tie everything back to the thesis statement: our real-time sentiment
-dashboard demonstrates a practical fusion of NLP and finance, highlights the value of domain-specific models
-like FinBERT in extracting actionable insight from text, and offers a foundation that future work can build
-upon to deepen the integration of alternative data (like textual sentiment) into market analysis tools.9090
 
 \section{Conclusion}
 In summary, this study has developed a framework for leveraging transformer-based sentiment analysis in the
@@ -426,7 +492,6 @@ innovate in understanding and visualizing the complex emotional undercurrents th
 We hope this study lays groundwork for more sophisticated sentiment-driven analytics in the financial domain,
 and we have outlined several improvements that can be pursued to enhance both the accuracy and utility of
 such systems in the future.
-
 
 \bibliographystyle{acm}
 \bibliography{bibliography.bib}
